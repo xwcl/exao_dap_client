@@ -31,9 +31,15 @@ setup(
     python_requires='>=3.8, <4',
     install_requires=[
         'astropy>=4.2,<5',
+        'python-dateutil>=2.8.1,<3'
     ],
     package_data={
         PROJECT: ['VERSION'],
+    },
+    entry_points={
+        'console_scripts': [
+            'dap_make_payload=exao_dap_client.commands.make_payload:main',
+        ],
     },
     extras_require=extras,
     project_urls={
