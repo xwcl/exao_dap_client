@@ -5,6 +5,8 @@ from astropy.io import fits
 import dateutil.parser, dateutil.tz
 from dateutil.utils import default_tzinfo
 
+from . import utils
+
 _FITS_IGNORE_KEYWORDS = set(('COMMENT', 'HISTORY', 'SIMPLE', 'EXTEND', 'GCOUNT', 'PCOUNT', 'EXTNAME'))
 
 def merge_payload(original_payload, new_payload):
@@ -98,19 +100,9 @@ def date_extractor(payload, file_handle):
                         pass
     return {}
 
-def _read_in_chunks(file_object, chunk_size=2**30):
-    while True:
-        data = file_object.read(chunk_size)
-        if not data:
-            break
-        yield data
 
 def checksum_extractor(payload, file_handle):
-    file_handle.seek(0)
-    md5sum = hashlib.md5()
-    for chunk in _read_in_chunks(file_handle):
-        md5sum.update(chunk)
-    return {'checksum': md5sum.hexdigest()}
+    return {'checksum': utils.md5sum(file_handle)}
 
 EXTRACTOR_STACK = (
     fits_extractor,

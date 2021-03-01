@@ -43,7 +43,9 @@ def test_extract_date(example_fits_hdul, date_kw, extension):
     file_like = _hdul_to_bytesio(hdul)
     payload = make_payload('example.fits', file_like)
     assert payload['created_at'] == datetime.datetime(
-        2015, 11, 29, 6, 10, 42, tzinfo=dateutil.tz.UTC)
+        2015, 11, 29, 6, 10, 42,
+        tzinfo=dateutil.tz.UTC
+    )
 
 
 def test_extract_fits(example_fits_hdul):

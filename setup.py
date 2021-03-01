@@ -31,7 +31,10 @@ setup(
     python_requires='>=3.8, <4',
     install_requires=[
         'astropy>=4.2,<5',
-        'python-dateutil>=2.8.1,<3'
+        'python-dateutil>=2.8.1,<3',
+        'orjson>=3.4.8,<4',
+        'fsspec>=0.8.5,<0.9',
+        'irods-fsspec',
     ],
     package_data={
         PROJECT: ['VERSION'],
@@ -39,6 +42,8 @@ setup(
     entry_points={
         'console_scripts': [
             'dap_make_payload=exao_dap_client.commands.make_payload:main',
+            'dap_normalize_fits=exao_dap_client.commands.normalize_fits:main',
+            'dap_irods_sync=exao_dap_client.commands.irods_sync:main',
         ],
     },
     extras_require=extras,

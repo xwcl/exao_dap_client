@@ -1,5 +1,5 @@
 import argparse
-import json
+import orjson
 import os.path
 import sys
 import warnings
@@ -17,5 +17,5 @@ def main():
     with warnings.catch_warnings():
         warnings.simplefilter('ignore')
         payload = make_payload(args.filename)
-    print(json.dumps(payload, indent=2))
+    print(orjson.dumps(payload, option=orjson.OPT_INDENT_2).decode('utf8'))
     sys.exit(0)
