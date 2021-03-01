@@ -12,7 +12,7 @@ def main():
     args = parser.parse_args()
     fn = args.filename
     if not os.path.exists(fn) or not os.path.isfile(fn):
-        print(f'File {fn} not found', file=sys.stderr)
+        print(f'File not found: {fn}', file=sys.stderr)
         sys.exit(1)
     with warnings.catch_warnings():
         warnings.simplefilter('ignore')
