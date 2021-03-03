@@ -29,7 +29,7 @@ def fits_extractor(payload, file_handle):
     from the headers to produce a payload for merging into the final
     value::
 
-        {'metadata':
+        {'meta':
             {'fits': {
                 'KEYWORD': value,
                 'KEYWORD': value,
@@ -65,7 +65,7 @@ def fits_extractor(payload, file_handle):
             name = f'idx_{idx}'
         extensions[name] = extdata
     data['ext'] = extensions
-    return {'metadata': {'fits': data}}
+    return {'meta': {'fits': data}}
 
 DATE_KEYWORDS = ('DATE-OBS', 'DATE')
 
@@ -74,7 +74,7 @@ def _parse_datetime(value):
     return dt.astimezone(tz=dateutil.tz.UTC)
 
 def date_extractor(payload, file_handle):
-    '''Post-process extracted metadata to find creation timestamp
+    '''Post-process extracted meta to find creation timestamp
     if present and add it under key 'created_at' after adjusting to
     UTC. (Times without timezone / offset info are presumed UTC.)
 
@@ -84,8 +84,8 @@ def date_extractor(payload, file_handle):
 
     Supplies `created_at` key for payload.
     '''
-    if 'fits' in payload['metadata']:
-        headers = payload['metadata']['fits']
+    if 'fits' in payload['meta']:
+        headers = payload['meta']['fits']
         for kw in DATE_KEYWORDS:
             if kw in headers:
                 try:

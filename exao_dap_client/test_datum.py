@@ -53,7 +53,7 @@ def test_extract_fits(example_fits_hdul):
     ref_payload = {
         'filename': 'example.fits',
         'checksum': 'f1550321a1d6e909d767e13d0d789453',
-        'metadata': {
+        'meta': {
             'fits': {
                 'KEYWORD': 'value',
                 'INTKW': 1,
