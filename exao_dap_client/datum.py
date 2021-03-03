@@ -116,7 +116,7 @@ def make_payload(filename, file_like=None):
     else:
         fh = file_like
     try:
-        payload = {'filename': filename}
+        payload = {'filename': os.path.basename(filename)}
         for extractor_func in EXTRACTOR_STACK:
             payload_update = extractor_func(payload, fh)
             payload = merge_payload(payload, payload_update)
