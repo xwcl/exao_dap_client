@@ -1,3 +1,4 @@
+from enum import Enum
 import hashlib
 import re
 import os.path
@@ -6,6 +7,17 @@ import dateutil.parser, dateutil.tz
 from dateutil.utils import default_tzinfo
 
 from . import utils
+
+class DatumKind(Enum):
+    SCIENCE = 'science'
+    CALIBRATION = 'calibration'
+    REFERENCE = 'reference'
+    PRODUCT = 'product'
+
+class DatumState(Enum):
+    NEW = 'new'
+    SYNCING = 'syncing'
+    SYNCED = 'synced'
 
 _FITS_IGNORE_KEYWORDS = set(('COMMENT', 'HISTORY', 'SIMPLE', 'EXTEND', 'GCOUNT', 'PCOUNT', 'EXTNAME'))
 
@@ -101,13 +113,14 @@ def date_extractor(payload, file_handle):
     return {}
 
 
-def checksum_extractor(payload, file_handle):
-    return {'checksum': utils.md5sum(file_handle)}
+def checksum_size_extractor(payload, file_handle):
+    size_bytes, md5sum = utils.size_and_md5sum(file_handle)
+    return {'checksum': md5sum, 'size_bytes': size_bytes}
 
 EXTRACTOR_STACK = (
     fits_extractor,
     date_extractor,
-    checksum_extractor,
+    checksum_size_extractor,
 )
 
 def make_payload(filename, file_like=None):

@@ -41,7 +41,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'dap_make_payload=exao_dap_client.commands.make_payload:main',
+            'dap=exao_dap_client.cli:main',
             'dap_normalize_fits=exao_dap_client.commands.normalize_fits:main',
             'dap_irods_sync=exao_dap_client.commands.irods_sync:main',
         ],
