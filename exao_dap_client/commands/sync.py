@@ -1,0 +1,31 @@
+import argparse
+import orjson
+import os
+import os.path
+import pathlib
+import sys
+import warnings
+import logging
+
+from .base import BaseCommand
+
+from .. import utils, data_store
+
+log = logging.getLogger(__name__)
+
+class Sync(BaseCommand):
+    help = "Sync a local filesystem directory to an iRODS collection"
+
+    @staticmethod
+    def add_arguments(parser: argparse.ArgumentParser):
+        parser.add_argument('source_dir', help='Local filesystem directory to sync from')
+        parser.add_argument('destination_dir', help='iRODS collection to sync to')
+    
+    def main(self):
+        logging.getLogger('irods').setLevel('WARN')
+        src = self.args.source_dir
+        if not os.path.isdir(src):
+            raise FileNotFoundError(f"Directory not found: {src}")
+        dest = self.args.destination_dir
+        data_store.sync_to_irods(src, dest)
+        return self.SUCCESS
