@@ -3,6 +3,8 @@ import os
 import sys
 import logging
 
+from .. import config
+
 log = logging.getLogger(__name__)
 
 class BaseCommand:
@@ -13,11 +15,9 @@ class BaseCommand:
 
     def __init__(self, args: argparse.Namespace):
         self.args = args
-        self.token = args.token
-        self.service = args.service
-        self.verbose = args.verbose
-        self.log = logging.getLogger(self.__name__)
-        
+        self.log = logging.getLogger(self.__class__.__name__)
+        self.config = config.get_config(args)
+
     @staticmethod
     def add_arguments(parser: argparse.ArgumentParser):
         pass

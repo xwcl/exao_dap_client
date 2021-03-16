@@ -6,18 +6,13 @@ from astropy.io import fits
 import dateutil.parser, dateutil.tz
 from dateutil.utils import default_tzinfo
 
-from . import utils
+from . import utils, data_store
 
 class DatumKind(Enum):
     SCIENCE = 'science'
     CALIBRATION = 'calibration'
     REFERENCE = 'reference'
     PRODUCT = 'product'
-
-class DatumState(Enum):
-    NEW = 'new'
-    SYNCING = 'syncing'
-    SYNCED = 'synced'
 
 _FITS_IGNORE_KEYWORDS = set(('COMMENT', 'HISTORY', 'SIMPLE', 'EXTEND', 'GCOUNT', 'PCOUNT', 'EXTNAME'))
 
@@ -53,10 +48,10 @@ def fits_extractor(payload, file_handle):
             }}
         }    
     '''
-    
-    if re.match(r'.+\.fits?$', payload['filename']) is None:
+    try:
+        hdulist = fits.open(file_handle)
+    except Exception:
         return payload
-    hdulist = fits.open(file_handle)
     # primary extension -> top level keys
     data = {}
     for card in hdulist[0].header.cards:
@@ -115,7 +110,7 @@ def date_extractor(payload, file_handle):
 
 def checksum_size_extractor(payload, file_handle):
     size_bytes, md5sum = utils.size_and_md5sum(file_handle)
-    return {'checksum': md5sum, 'size_bytes': size_bytes}
+    return {'checksum_md5': md5sum, 'size_bytes': size_bytes}
 
 EXTRACTOR_STACK = (
     fits_extractor,
@@ -123,17 +118,38 @@ EXTRACTOR_STACK = (
     checksum_size_extractor,
 )
 
-def make_payload(filename, file_like=None):
-    if file_like is None:
-        fh = open(filename, 'rb')
+def extract_info(filename_or_file):
+    if isinstance(filename_or_file, str):
+        fh = open(filename_or_file, 'rb')
     else:
-        fh = file_like
+        fh = filename_or_file
     try:
-        payload = {'filename': os.path.basename(filename)}
+        payload = {}
         for extractor_func in EXTRACTOR_STACK:
             payload_update = extractor_func(payload, fh)
             payload = merge_payload(payload, payload_update)
     finally:
-        if file_like is None:
+        if not isinstance(filename_or_file, str):
             fh.close()
     return payload
+
+def extract_all_info(filenames_or_files, minimal=False, file_likes=None):
+    payloads = []
+    for fn_or_fh in filenames_or_files:
+        if isinstance(fn_or_fh, str):
+            fh = open(fn_or_fh, 'rb')
+        else:
+            fh = fn_or_fh
+        payloads.append(extract_info(fh))
+    return payloads
+
+def init_from_collection(src_collection, default_kind=DatumKind.SCIENCE):
+    irodsfs = data_store.irods_get_fs()
+    results = []
+    for entry in irodsfs.ls(src_collection):
+        payload = {
+            'kind': default_kind,
+            'filename': os.path.basename(entry['name'])
+        }
+        results.append(payload)
+    return results

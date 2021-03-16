@@ -18,14 +18,12 @@ class Sync(BaseCommand):
 
     @staticmethod
     def add_arguments(parser: argparse.ArgumentParser):
-        parser.add_argument('source_dir', help='Local filesystem directory to sync from')
-        parser.add_argument('destination_dir', help='iRODS collection to sync to')
+        parser.add_argument('source_dir', help='path or URL to sync from')
+        parser.add_argument('destination_dir', help='path or URL to sync to')
     
     def main(self):
         logging.getLogger('irods').setLevel('WARN')
         src = self.args.source_dir
-        if not os.path.isdir(src):
-            raise FileNotFoundError(f"Directory not found: {src}")
         dest = self.args.destination_dir
-        data_store.sync_to_irods(src, dest)
+        data_store.sync(src, dest)
         return self.SUCCESS
