@@ -7,11 +7,7 @@ from .commands import sync, ingest, extract_info
 
 log = logging.getLogger(__name__)
 
-REGISTRY = {
-    'sync': sync.Sync,
-    'ingest': ingest.Ingest,
-    'extract_info': extract_info.ExtractInfo
-}
+COMMANDS = {sync.Sync, ingest.Ingest, extract_info.ExtractInfo}
 
 
 def main():
@@ -22,8 +18,12 @@ def main():
     subps = parser.add_subparsers(title='subcommands',
                                   description='valid subcommands')
 
-    for key, command_cls in REGISTRY.items():
-        subp = subps.add_parser(key)
+    for command_cls in COMMANDS:
+        cmd = command_cls.name
+        print(f'{cmd=}')
+        assert cmd is not None
+        subp = subps.add_parser(cmd, help=command_cls.help)
+        print(f'{subp=}')
         subp.set_defaults(command_cls=command_cls)
         command_cls.add_arguments(subp)
     
@@ -36,4 +36,4 @@ def main():
     log.debug(f'Verbose logging: {args.verbose}')
     
     command = args.command_cls(args)
-    sys.exit(command.main())
+    sys.exit(command.run())

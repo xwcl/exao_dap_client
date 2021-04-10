@@ -7,17 +7,19 @@ import sys
 import warnings
 import logging
 
-from .base import BaseCommand
+from .base import Command
 
 from .. import utils, data_store
 
 log = logging.getLogger(__name__)
 
-class Sync(BaseCommand):
+class Sync(Command):
+    name = "sync"
     help = "Sync a local filesystem directory to an iRODS collection"
 
     @staticmethod
     def add_arguments(parser: argparse.ArgumentParser):
+        super(Sync, Sync).add_arguments(parser)
         parser.add_argument('source_dir', help='path or URL to sync from')
         parser.add_argument('destination_dir', help='path or URL to sync to')
     

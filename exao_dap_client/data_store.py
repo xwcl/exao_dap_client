@@ -36,11 +36,16 @@ def join(*args):
     new_path = os.path.join(res.path, *args[1:])
     return args[0].replace(res.path, new_path)
 
+def basename(path):
+    res = urlparse(path)
+    return os.path.basename(res.path)
+
 def get_fs(path) -> fsspec.spec.AbstractFileSystem:
     '''Obtain a concrete fsspec filesystem from a path using
-    the protocol string (if any) and `_get_kwargs_from_urls` on
-    the associated fsspec class. The same instance will be returned
-    if the same kwargs are used multiple times in the same thread.
+    the protocol string (if any; defaults to 'file:///') and 
+    `_get_kwargs_from_urls` on the associated fsspec class. The same
+    instance will be returned if the same kwargs are used multiple times
+    in the same thread.
 
     Note: Won't work when kwargs are required but not encoded in the
     URL.
@@ -53,6 +58,8 @@ def get_fs(path) -> fsspec.spec.AbstractFileSystem:
     else:
         kwargs = {}
     key = (proto,) + tuple(kwargs.items())
+    if not hasattr(_LOCAL, 'filesystems'):
+        _LOCAL.filesystems = {}   # unclear why this is not init at import in dask workers
     if key not in _LOCAL.filesystems:
         fs = cls(**kwargs)
         _LOCAL.filesystems[key] = fs
@@ -187,6 +194,7 @@ def sync(src, dest, checksum=utils.md5sum, force_overwrite=False):
     destfs = get_fs(dest)
     dest_url = urlparse(dest)
     dest_path = os.path.abspath(dest_url.path) if dest_url.scheme in ('file', '') else dest_url.path
+
     for dirpath, dirnames, filenames in srcfs.walk(src_path):
         if name_is_ignored(dirpath):
             continue
@@ -197,7 +205,6 @@ def sync(src, dest, checksum=utils.md5sum, force_overwrite=False):
         src_files = _filenames_lookup(srcfs, dirpath)
 
         the_dir = pathlib.Path(dirpath)
-        print(f'{dirpath=}, {the_dir=}, {dest_path=}')
         dest_dir_path = os.path.join(dest_path, the_dir.relative_to(src_path))
 
         # Collect any existing files and their checksums
