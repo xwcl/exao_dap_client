@@ -14,8 +14,8 @@ class BaseCommand:
     SUCCESS = 0
     FAILURE = 1
 
-    def __init__(self, args: argparse.Namespace):
-        self.args = args
+    def __init__(self, cli_args: argparse.Namespace):
+        self.args = cli_args
 
     @staticmethod
     def add_arguments(parser: argparse.ArgumentParser):
@@ -42,6 +42,6 @@ class BaseCommand:
         raise NotImplementedError("Subclasses must implement a main() method")
 
 class Command(BaseCommand):
-    def __init__(self, args:argparse.Namespace):
-        super().__init__(args)
-        self.config = config.get_config(args)
+    def __init__(self, cli_args: argparse.Namespace):
+        super().__init__(cli_args)
+        self.config = config.get_config(cli_args)
