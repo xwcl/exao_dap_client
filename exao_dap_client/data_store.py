@@ -53,7 +53,7 @@ def get_fs(path) -> fsspec.spec.AbstractFileSystem:
     scheme = urlparse(path).scheme
     proto = scheme if scheme != '' else 'file'
     cls = fsspec.get_filesystem_class(proto)
-    if hasattr(cls, '_get_kwargs_from_url'):
+    if hasattr(cls, '_get_kwargs_from_urls'):
         kwargs = cls._get_kwargs_from_urls(path)
     else:
         kwargs = {}
